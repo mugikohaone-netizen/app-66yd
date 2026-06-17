@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ネタ帳整理棒 - 空手家パパ用</title>
+<style>
+  :root{
+    --paper:#f6f1e6;
+    --paper-dark:#ece3d0;
+    --ink:#2b2620;
+    --ink-soft:#5c5447;
+    --red:#a3402f;
+    --green:#3c5f4a;
+    --gold:#b3892f;
+    --line:#d9cdb2;
+    --card:#fffdf8;
+    --shadow: 0 2px 0 rgba(43,38,32,0.06), 0 8px 20px rgba(43,38,32,0.07);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(43,38,32,0.035) 28px);
+    color:var(--ink);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+    line-height:1.7;
+    padding-bottom:60px;
+  }
+  .hanko{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:54px;height:54px;
+    border:2px solid var(--red);
+    color:var(--red);
+    border-radius:6px;
+    font-size:12px;
+    font-weight:700;
+    line-height:1.25;
+    letter-spacing:0.02em;
+    transform:rotate(-4deg);
+    flex-shrink:0;
+    text-align:center;
+    padding:2px;
+  }
+  header{
+    padding:34px 20px 22px;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(255,253,248,0.5), transparent);
+  }
+  .header-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    max-width:880px;
+    margin:0 auto;
+  }
+  h1{
+    font-size:22px;
+    letter-spacing:0.06em;
+    margin:0;
+    font-weight:700;
+  }
+  .sub{
+    margin:4px 0 0;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    letter-spacing:0.04em;
+  }
+  main{
+    max-width:880px;
+    margin:0 auto;
+    padding:0 20px;
+  }
+
+  /* analysis summary */
+  .analysis-summary{
+    margin:22px 0 0;
+    padding:18px 20px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:3px;
+    box-shadow:var(--shadow);
+    display:flex;
+    align-items:center;
+    gap:28px;
+    flex-wrap:wrap;
+  }
+  .analysis-summary .num{
+    font-size:24px;
+    font-weight:700;
+  }
+  .analysis-summary .label{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+
+  /* drill-down breadcrumb */
+  .drill-breadcrumb{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:18px 0 4px;
+  }
+  .drill-breadcrumb .crumb{
+    cursor:pointer;
+    color:var(--ink);
+    text-decoration:underline;
+    text-decoration-color:var(--gold);
+  }
+  .drill-breadcrumb .crumb.current{
+    color:var(--ink-soft);
+    text-decoration:none;
+    cursor:default;
+    font-weight:700;
+  }
+  .drill-breadcrumb .sep{ color:var(--line); }
+
+  .drill-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:14px;
+  }
+  .drill-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:14px 18px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    background:var(--card);
+    box-shadow:var(--shadow);
+    cursor:pointer;
+    transition:transform .1s;
+  }
+  .drill-item:hover{ border-color:var(--gold); }
+  .drill-item:active{ transform:scale(0.99); }
+  .drill-item .drill-item-title{
+    font-size:14px;
+    font-weight:700;
+  }
+  .drill-item .drill-item-sub{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:3px;
+  }
+  .drill-item .drill-item-count{
+    font-size:12px;
+    color:var(--ink-soft);
+    background:var(--paper-dark);
+    padding:4px 12px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .drill-item .drill-item-arrow{
+    color:var(--ink-soft);
+    font-size:16px;
+  }
+
+  .detail-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:3px;
+    box-shadow:var(--shadow);
+    padding:20px 22px;
+    margin-top:14px;
+  }
+  .detail-card h3{
+    font-size:16px;
+    margin:0 0 4px;
+  }
+  .detail-card .detail-meta{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-bottom:14px;
+  }
+  .detail-neta-item{
+    padding:12px 0;
+    border-top:1px solid var(--line);
+  }
+  .detail-neta-item:first-of-type{ border-top:none; }
+  .detail-neta-item .neta-text{ margin:0 0 6px; }
+  .detail-card a.note-link-btn{
+    display:inline-block;
+    margin-top:14px;
+    padding:10px 18px;
+    background:var(--ink);
+    color:var(--paper);
+    text-decoration:none;
+    border-radius:3px;
+    font-size:13px;
+  }
+
+  .tabs{
+    display:flex;
+    gap:0;
+    margin:22px 0 0;
+    border-bottom:1px solid var(--line);
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding:13px 8px;
+    font-size:13.5px;
+    letter-spacing:0.05em;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    user-select:none;
+    transition:color .15s, border-color .15s;
+  }
+  .tab.active{
+    color:var(--ink);
+    border-bottom-color:var(--red);
+    font-weight:700;
+  }
+  section.panel{display:none; animation:fadeIn .25s ease;}
+  section.panel.active{display:block;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  .step{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:22px 22px 24px;
+    margin:22px 0;
+    box-shadow:var(--shadow);
+    position:relative;
+  }
+  .step-num{
+    position:absolute;
+    top:-14px;
+    left:18px;
+    background:var(--ink);
+    color:var(--paper);
+    font-size:11px;
+    padding:4px 10px;
+    letter-spacing:0.1em;
+    border-radius:2px;
+  }
+  .step h2{
+    font-size:16px;
+    margin:4px 0 6px;
+  }
+  .step p.desc{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0 0 14px;
+  }
+  textarea, input[type=text]{
+    width:100%;
+    font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+    font-size:13.5px;
+    padding:12px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    background:#fffefb;
+    color:var(--ink);
+    resize:vertical;
+  }
+  textarea{min-height:110px; line-height:1.6;}
+  label.field-label{
+    display:block;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:14px 0 6px;
+    letter-spacing:0.04em;
+  }
+
+  .daibunrui-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:10px;
+  }
+  .daibunrui-card{
+    border:1px solid var(--line);
+    border-radius:3px;
+    background:var(--paper-dark);
+    padding:12px 14px;
+  }
+  .daibunrui-card .db-row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .daibunrui-card input.db-name{
+    font-weight:700;
+    font-size:14px;
+    flex:1;
+  }
+  .daibunrui-card input.db-memo{
+    font-size:12.5px;
+    margin-top:8px;
+  }
+  .db-del{
+    border:none;
+    background:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-size:14px;
+    padding:4px 8px;
+    flex-shrink:0;
+  }
+  .db-del:hover{color:var(--red);}
+
+  .btn{
+    font-family:inherit;
+    font-size:13.5px;
+    letter-spacing:0.04em;
+    padding:11px 20px;
+    border-radius:3px;
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:var(--paper);
+    cursor:pointer;
+    transition:transform .1s, opacity .15s;
+  }
+  .btn:hover{opacity:0.86;}
+  .btn:active{transform:scale(0.98);}
+  .btn.outline{
+    background:transparent;
+    color:var(--ink);
+    border:1px solid var(--ink-soft);
+  }
+  .btn.red{background:var(--red); border-color:var(--red);}
+  .btn.green{background:var(--green); border-color:var(--green);}
+  .btn.small{padding:7px 13px; font-size:12px;}
+  .btn-row{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;}
+
+  .copy-flash{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12.5px;
+    color:var(--green);
+    margin-left:0;
+    opacity:0;
+    transition:opacity .2s;
+  }
+  .copy-flash.show{opacity:1;}
+
+  details.prompt-preview{
+    margin-top:14px;
+    border:1px dashed var(--line);
+    border-radius:3px;
+    padding:10px 14px;
+  }
+  details.prompt-preview summary{
+    cursor:pointer;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  details.prompt-preview pre{
+    white-space:pre-wrap;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+    margin-top:10px;
+    line-height:1.6;
+  }
+
+  .note-box{
+    font-size:12px;
+    color:var(--ink-soft);
+    background:var(--paper-dark);
+    border-left:3px solid var(--gold);
+    padding:10px 14px;
+    margin-top:14px;
+    border-radius:0 3px 3px 0;
+  }
+
+  .url-count-label{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    text-align:right;
+    margin-top:4px;
+  }
+  .url-count-label.over{ color:var(--red); font-weight:700; }
+
+  .toolbar{
+    display:flex;
+    gap:10px;
+    margin:24px 0 6px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .search-box{flex:1; min-width:160px;}
+  select{
+    font-family:inherit;
+    font-size:13px;
+    padding:9px 10px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    background:#fffefb;
+    color:var(--ink);
+  }
+  .filter-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    margin:14px 0 4px;
+  }
+  .chip{
+    font-size:12px;
+    padding:6px 13px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    background:#fffefb;
+    color:var(--ink-soft);
+    cursor:pointer;
+    user-select:none;
+  }
+  .chip.active{
+    background:var(--ink);
+    color:var(--paper);
+    border-color:var(--ink);
+  }
+  .chip-group-label{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin:10px 2px 2px;
+    letter-spacing:0.04em;
+  }
+  .stats-line{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:10px 2px 0;
+  }
+
+  .neta-list{
+    margin-top:18px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .article-group{
+    border:1px solid var(--line);
+    border-radius:3px;
+    background:var(--card);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .article-head{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+    background:var(--paper-dark);
+  }
+  .article-head .meta{flex:1; min-width:0;}
+  .article-title{
+    font-size:14px;
+    font-weight:700;
+    margin:0 0 3px;
+  }
+  .article-title a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--gold);}
+  .article-url{
+    font-size:11px;
+    color:var(--ink-soft);
+    word-break:break-all;
+  }
+  .del-article{
+    border:none;
+    background:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-size:11.5px;
+    padding:5px 10px;
+    flex-shrink:0;
+    white-space:nowrap;
+    border:1px solid var(--line);
+    border-radius:20px;
+  }
+  .del-article:hover{ color:var(--red); border-color:var(--red); }
+  .neta-cards{
+    display:flex;
+    flex-direction:column;
+  }
+  .neta-card{
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .neta-card:last-child{border-bottom:none;}
+  .neta-card .idx{
+    font-size:11px;
+    color:var(--ink-soft);
+    width:20px;
+    flex-shrink:0;
+    padding-top:2px;
+  }
+  .neta-card .body{flex:1; min-width:0;}
+  .neta-text{font-size:13.5px; margin:0 0 8px;}
+  .neta-tags{display:flex; gap:6px; flex-wrap:wrap; align-items:center;}
+  .cat-pill{
+    font-size:11px;
+    padding:3px 10px;
+    border-radius:20px;
+    background:var(--paper-dark);
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+  }
+  .cat-pill.db{
+    background:var(--ink);
+    color:var(--paper);
+    border-color:var(--ink);
+  }
+  .del-neta{
+    border:none;
+    background:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-size:13px;
+    padding:2px 6px;
+    flex-shrink:0;
+  }
+  .del-neta:hover{color:var(--red);}
+
+  .empty-state{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--ink-soft);
+    font-size:13.5px;
+  }
+
+  .merge-box{
+    border:1px dashed var(--line);
+    border-radius:3px;
+    padding:14px 16px;
+    margin-top:18px;
+  }
+  .merge-box h3{font-size:13px; margin:0 0 6px;}
+  .merge-box p{font-size:12px; color:var(--ink-soft); margin:0 0 10px;}
+  .merge-row{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .merge-row select{flex:1; min-width:120px;}
+  .merge-arrow{color:var(--ink-soft); font-size:13px;}
+
+  footer{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    padding:30px 20px 10px;
+  }
+
+  @media (max-width:540px){
+    .header-row{gap:10px;}
+    h1{font-size:18px;}
+    .step{padding:18px 16px 20px;}
+  }
+</style>
+<link rel="apple-touch-icon" href="./icon.png">
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div class="hanko">空手家<br>パパ</div>
+    <div>
+      <h1>ネタ帳整理棒</h1>
+      <p class="sub">自分の書いたネタ、なんだったかな？を解決する</p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="setup">①大分類を作る</div>
+    <div class="tab" data-tab="register">②記事を登録</div>
+    <div class="tab" data-tab="list">③ネタ一覧</div>
+    <div class="tab" data-tab="analysis">④分析</div>
+  </div>
+
+  <!-- STEP 1: DAIBUNRUI SETUP -->
+  <section class="panel active" id="panel-setup">
+    <div class="step">
+      <span class="step-num">STEP 1</span>
+      <h2>大分類を作る</h2>
+      <p class="desc">分類の大まかな方向性を3〜5個決めてください。一言メモは、Claudeが分類に迷いそうな場合の補足として使えます（空欄でも構いません）。</p>
+      <div class="daibunrui-list" id="daibunruiList"></div>
+      <div class="btn-row">
+        <button class="btn outline small" id="addDbBtn">＋大分類を追加</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2: REGISTER ARTICLES -->
+  <section class="panel" id="panel-register">
+    <div class="step">
+      <span class="step-num">STEP 2</span>
+      <h2>記事のURLを貼る（1回5件まで）</h2>
+      <p class="desc">noteの記事URLを1行に1件、最大5件まで貼ってください。Claude専用の分類プロンプトが自動で作られます。</p>
+      <textarea id="urlInput" placeholder="https://note.com/karatepapa/n/xxxxxxx
+https://note.com/karatepapa/n/yyyyyyy"></textarea>
+      <div class="url-count-label" id="urlCountLabel">0 / 5 件</div>
+
+      <div class="note-box">
+        このプロンプトはClaude専用です。コピーしたら、Claudeとの会話（このチャットでも、新しいチャットでもOK）に貼ってください。ClaudeはURLを開いて記事を読み、分類結果のJSONを返します。
+      </div>
+
+      <div class="btn-row">
+        <button class="btn red" id="copyPromptBtn">Claude用プロンプトをコピー</button>
+        <span class="copy-flash" id="copyFlash">✓ コピーしました。Claudeに貼って実行してください</span>
+      </div>
+
+      <details class="prompt-preview">
+        <summary>コピーされる内容を確認する</summary>
+        <pre id="promptPreview"></pre>
+      </details>
+    </div>
+
+    <div class="step">
+      <span class="step-num">STEP 3</span>
+      <h2>Claudeの回答（JSON）を貼って読み込む</h2>
+      <p class="desc">Claudeが返してきたJSONをそのまま、まとめてここに貼ってください。前後に説明文がついていても自動で抜き出します。</p>
+      <textarea id="resultInput" placeholder='{"articles":[{"url":"...","title":"...","netas":[{"text":"...","daibunrui":"武道","subcategory":"足さばき"}]}]}'></textarea>
+      <div class="btn-row">
+        <button class="btn green" id="importBtn">読み込んで一覧に反映</button>
+      </div>
+      <div id="importMsg" style="font-size:12.5px; margin-top:10px;"></div>
+    </div>
+  </section>
+
+  <!-- STEP 3 TAB: LIST -->
+  <section class="panel" id="panel-list">
+    <div class="toolbar">
+      <input type="text" class="search-box" id="searchInput" placeholder="ネタの内容やタイトルで検索…">
+      <select id="sortSelect">
+        <option value="new">新しい順</option>
+        <option value="old">古い順</option>
+        <option value="cat">分類順</option>
+      </select>
+    </div>
+
+    <div class="chip-group-label">大分類で絞り込み</div>
+    <div class="filter-chips" id="dbFilterChips"></div>
+    <div class="chip-group-label">小分類で絞り込み</div>
+    <div class="filter-chips" id="subFilterChips"></div>
+
+    <div class="stats-line" id="statsLine"></div>
+
+    <div class="neta-list" id="netaList"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      まだネタが登録されていません。「①大分類を作る」→「②記事を登録」の順に進めてください。
+    </div>
+
+    <div class="merge-box">
+      <h3>似た小分類名をまとめる</h3>
+      <p>表記が揺れている小分類（例：「ローキック」と「ロー・キック」）があれば、ここで統合できます。</p>
+      <div class="merge-row">
+        <select id="mergeFrom"></select>
+        <span class="merge-arrow">→</span>
+        <select id="mergeTo"></select>
+        <button class="btn outline small" id="mergeBtn">統合する</button>
+      </div>
+    </div>
+
+    <div class="merge-box" style="border-color:var(--red);">
+      <h3 style="color:var(--red);">全データをリセット</h3>
+      <p>登録したすべての記事・ネタ・大分類が削除され、最初の状態に戻ります。配布用に空の状態へ戻す時にも使えます。この操作は取り消せません。</p>
+      <button class="btn red small" id="resetAllBtn">すべて削除して最初からやり直す</button>
+    </div>
+  </section>
+
+  <!-- PANEL: ANALYSIS (drill-down) -->
+  <section class="panel" id="panel-analysis">
+    <div class="analysis-summary">
+      <div>
+        <div class="num" id="analysisTotalArticles">0</div>
+        <div class="label">記事</div>
+      </div>
+      <div>
+        <div class="num" id="analysisTotalNetas">0</div>
+        <div class="label">ネタ</div>
+      </div>
+      <div>
+        <div class="num" id="analysisTotalDb">0</div>
+        <div class="label">大分類</div>
+      </div>
+    </div>
+
+    <div class="drill-breadcrumb" id="drillBreadcrumb"></div>
+    <div id="drillContent"></div>
+  </section>
+
+</main>
+
+<footer>データはこの端末のブラウザ内に保存されます（他の端末とは共有されません）</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "netaapp_v3";
+  var MAX_URLS_PER_BATCH = 5;
+
+  var DEFAULT_DAIBUNRUI = [
+    { id: "db1", name: "武道", memo: "" },
+    { id: "db2", name: "日常エッセイ", memo: "" },
+    { id: "db3", name: "AI・アプリ開発", memo: "" },
+    { id: "db_other", name: "その他", memo: "他の大分類に当てはまらないものはここに入れる" }
+  ];
+
+  function freshDaibunrui(){
+    return DEFAULT_DAIBUNRUI.map(function(d){ return { id: d.id, name: d.name, memo: d.memo }; });
+  }
+
+  var state = loadState();
+  ensureOtherCategory();
+
+  function ensureOtherCategory(){
+    var hasOther = state.daibunrui.some(function(d){ return d.name === "その他"; });
+    if(!hasOther){
+      state.daibunrui.push({ id: "db_other", name: "その他", memo: "他の大分類に当てはまらないものはここに入れる" });
+      saveState();
+    }
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(parsed && Array.isArray(parsed.daibunrui) && Array.isArray(parsed.articles)){
+          return parsed;
+        }
+      }
+    }catch(e){}
+    return { daibunrui: freshDaibunrui(), articles: [] };
+  }
+
+  function saveState(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function genId(){
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+
+  // ---------- TABS ----------
+  var tabs = document.querySelectorAll(".tab");
+  var panels = {
+    setup: document.getElementById("panel-setup"),
+    register: document.getElementById("panel-register"),
+    list: document.getElementById("panel-list"),
+    analysis: document.getElementById("panel-analysis")
+  };
+  tabs.forEach(function(t){
+    t.addEventListener("click", function(){
+      tabs.forEach(function(x){ x.classList.remove("active"); });
+      t.classList.add("active");
+      Object.keys(panels).forEach(function(k){ panels[k].classList.remove("active"); });
+      panels[t.dataset.tab].classList.add("active");
+      if(t.dataset.tab === "list"){ renderList(); }
+      if(t.dataset.tab === "register"){ updatePromptPreview(); }
+      if(t.dataset.tab === "analysis"){ drillState = { level: "daibunrui" }; renderAnalysisView(); }
+    });
+  });
+
+  // ---------- STEP1: DAIBUNRUI ----------
+  function renderDaibunruiList(){
+    var wrap = document.getElementById("daibunruiList");
+    wrap.innerHTML = "";
+    state.daibunrui.forEach(function(db, i){
+      var card = document.createElement("div");
+      card.className = "daibunrui-card";
+
+      var row = document.createElement("div");
+      row.className = "db-row";
+
+      var nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.className = "db-name";
+      nameInput.value = db.name;
+      nameInput.placeholder = "大分類名（例：武道）";
+      nameInput.addEventListener("input", function(){
+        db.name = nameInput.value;
+        saveState();
+        updatePromptPreview();
+      });
+      row.appendChild(nameInput);
+
+      var delBtn = document.createElement("button");
+      delBtn.className = "db-del";
+      delBtn.textContent = "×";
+      delBtn.title = "この大分類を削除";
+      delBtn.addEventListener("click", function(){
+        if(state.daibunrui.length <= 1){
+          alert("大分類は最低1つ必要です。");
+          return;
+        }
+        if(db.name === "その他"){
+          alert("「その他」は分類しきれないネタの受け皿として残しておくことをおすすめします。それでも削除する場合は名前を別の名称に変更してから削除してください。");
+          return;
+        }
+        state.daibunrui.splice(i,1);
+        saveState();
+        renderDaibunruiList();
+        updatePromptPreview();
+      });
+      row.appendChild(delBtn);
+
+      card.appendChild(row);
+
+      var memoInput = document.createElement("input");
+      memoInput.type = "text";
+      memoInput.className = "db-memo";
+      memoInput.value = db.memo || "";
+      memoInput.placeholder = "一言メモ（任意：分類の判断材料になります）";
+      memoInput.addEventListener("input", function(){
+        db.memo = memoInput.value;
+        saveState();
+        updatePromptPreview();
+      });
+      card.appendChild(memoInput);
+
+      wrap.appendChild(card);
+    });
+  }
+
+  document.getElementById("addDbBtn").addEventListener("click", function(){
+    if(state.daibunrui.length >= 5){
+      alert("大分類は5個までにしておくのがおすすめです。");
+      return;
+    }
+    state.daibunrui.push({ id: "db_" + genId(), name: "", memo: "" });
+    saveState();
+    renderDaibunruiList();
+  });
+
+  // ---------- STEP2: URL INPUT + PROMPT ----------
+  function getUrlList(){
+    return document.getElementById("urlInput").value
+      .split("\n")
+      .map(function(s){ return s.trim(); })
+      .filter(function(s){ return s.length > 0; });
+  }
+
+  function updateUrlCountLabel(){
+    var urls = getUrlList();
+    var label = document.getElementById("urlCountLabel");
+    label.textContent = urls.length + " / " + MAX_URLS_PER_BATCH + " 件";
+    label.className = "url-count-label" + (urls.length > MAX_URLS_PER_BATCH ? " over" : "");
+  }
+
+  document.getElementById("urlInput").addEventListener("input", function(){
+    updateUrlCountLabel();
+    updatePromptPreview();
+  });
+
+  function buildPrompt(){
+    var urls = getUrlList().slice(0, MAX_URLS_PER_BATCH);
+
+    var dbLines = state.daibunrui
+      .filter(function(db){ return db.name && db.name.trim() !== ""; })
+      .map(function(db, i){
+        var line = (i+1) + ". " + db.name.trim();
+        if(db.memo && db.memo.trim() !== ""){
+          line += "　→ " + db.memo.trim();
+        }
+        return line;
+      });
+
+    var dbBlock = dbLines.length > 0 ? dbLines.join("\n") : "（大分類が未設定です。①タブで入力してください）";
+    var urlBlock = urls.length > 0 ? urls.join("\n") : "（ここにnote記事のURLを貼ってください）";
+
+    return [
+      "あなたはnote記事のネタ分類アシスタントです。以下のURLをそれぞれ開いて本文を読んでください。",
+      "",
+      "【対象記事URL（" + urls.length + "件）】",
+      urlBlock,
+      "",
+      "各記事の中に含まれる「小ネタ」（話のトピック単位。1記事に複数含まれることがあります）をすべて抜き出し、",
+      "まず以下の大分類のどれに当てはまるかを判断し、その上でふさわしい小分類名をあなたが考えて付けてください。",
+      "小分類名は固定リストではないので、記事の内容に応じて自由に作って構いません。",
+      "似た内容には同じ小分類名を使うようにし、表記のばらつき（送り仮名や中点の有無など）が出ないようにしてください。",
+      "",
+      "【大分類一覧】",
+      dbBlock,
+      "",
+      "【ルール】",
+      "・大分類のうち「その他」は、他のどの大分類にも無理に当てはめられないネタの受け皿です。こじつけず、迷ったら「その他」を使ってください。",
+      "・1つの記事から複数の小ネタを抜き出して構いません。",
+      "・渡されたURLは1件も省略せず、すべて分析対象にしてください。",
+      "・出力は説明文や前置きを一切付けず、次のJSON形式のみを返してください。",
+      "・JSON以外の文字（コードブロックの```json等の囲みも含む）は出力しないでください。",
+      "",
+      "【出力JSON形式】",
+      "{",
+      '  "articles": [',
+      "    {",
+      '      "url": "記事のURL",',
+      '      "title": "記事タイトル",',
+      '      "netas": [',
+      "        {",
+      '          "text": "小ネタの内容を1〜2文で要約",',
+      '          "daibunrui": "大分類名（上記一覧のいずれか）",',
+      '          "subcategory": "あなたが考えた小分類名"',
+      "        }",
+      "      ]",
+      "    }",
+      "  ]",
+      "}"
+    ].join("\n");
+  }
+
+  function updatePromptPreview(){
+    document.getElementById("promptPreview").textContent = buildPrompt();
+  }
+
+  document.getElementById("copyPromptBtn").addEventListener("click", function(){
+    var urls = getUrlList();
+    if(urls.length === 0){
+      alert("note記事のURLを1件以上入力してください。");
+      return;
+    }
+    if(urls.length > MAX_URLS_PER_BATCH){
+      alert("1回につき" + MAX_URLS_PER_BATCH + "件までにしてください。残りは次回まわしてもらえると確実に処理できます。");
+      return;
+    }
+
+    var text = buildPrompt();
+    var flash = document.getElementById("copyFlash");
+    function showFlash(){
+      flash.classList.add("show");
+      setTimeout(function(){ flash.classList.remove("show"); }, 2800);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(showFlash, function(){
+        fallbackCopy(text);
+        showFlash();
+      });
+    } else {
+      fallbackCopy(text);
+      showFlash();
+    }
+  });
+
+  function fallbackCopy(text){
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand("copy"); }catch(e){}
+    document.body.removeChild(ta);
+  }
+
+  // ---------- STEP3 (within register tab): IMPORT JSON ----------
+  document.getElementById("importBtn").addEventListener("click", function(){
+    var raw = document.getElementById("resultInput").value;
+    var msg = document.getElementById("importMsg");
+    var extracted = extractJson(raw);
+
+    if(!extracted){
+      msg.style.color = "var(--red)";
+      msg.textContent = "正しいJSONを見つけられませんでした。Claudeの回答全体（前後の文章を含めても構いません）をもう一度貼ってみてください。";
+      return;
+    }
+
+    var parsed;
+    try{
+      parsed = JSON.parse(extracted);
+    }catch(e){
+      msg.style.color = "var(--red)";
+      msg.textContent = "JSONの形式が正しくないようです（詳細: " + e.message + "）。";
+      return;
+    }
+
+    if(!parsed.articles || !Array.isArray(parsed.articles)){
+      msg.style.color = "var(--red)";
+      msg.textContent = "JSONの中に articles 配列が見つかりませんでした。";
+      return;
+    }
+
+    var addedArticles = 0;
+    var addedNetas = 0;
+    var newDbFound = [];
+    var dbNames = state.daibunrui.map(function(d){ return d.name; });
+
+    parsed.articles.forEach(function(art){
+      var url = (art.url || "").trim();
+      var title = (art.title || "（無題の記事）").trim();
+      var netas = Array.isArray(art.netas) ? art.netas : [];
+
+      var existing = null;
+      if(url){
+        existing = state.articles.find(function(a){ return a.url === url; });
+      }
+      if(!existing){
+        existing = {
+          id: genId(),
+          url: url,
+          title: title,
+          createdAt: Date.now(),
+          netas: []
+        };
+        state.articles.push(existing);
+        addedArticles++;
+      }
+
+      netas.forEach(function(n){
+        var dbName = (n.daibunrui || "その他").trim();
+        var subName = (n.subcategory || "未分類").trim();
+
+        if(dbNames.indexOf(dbName) === -1){
+          state.daibunrui.push({ id: "db_" + genId(), name: dbName, memo: "" });
+          dbNames.push(dbName);
+          if(newDbFound.indexOf(dbName) === -1){ newDbFound.push(dbName); }
+        }
+
+        existing.netas.push({
+          id: genId(),
+          text: (n.text || "").trim(),
+          daibunrui: dbName,
+          subcategory: subName,
+          createdAt: Date.now()
+        });
+        addedNetas++;
+      });
+    });
+
+    saveState();
+    renderDaibunruiList();
+    drillState = { level: "daibunrui" };
+    renderAnalysisView();
+
+    msg.style.color = "var(--green)";
+    msg.textContent = "記事 " + addedArticles + " 件、ネタ " + addedNetas + " 件を読み込みました。" +
+      (newDbFound.length > 0 ? "（想定外の大分類が追加されました: " + newDbFound.join("、") + "）" : "") +
+      " 「③ネタ一覧」タブで確認してください。";
+
+    document.getElementById("resultInput").value = "";
+    document.getElementById("urlInput").value = "";
+    updateUrlCountLabel();
+    updatePromptPreview();
+  });
+
+  function extractJson(raw){
+    if(!raw) return null;
+    var trimmed = raw.trim();
+
+    var fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if(fenced){
+      trimmed = fenced[1].trim();
+    }
+
+    var start = trimmed.indexOf("{");
+    if(start === -1){ return null; }
+
+    var end = trimmed.lastIndexOf("}");
+    if(end !== -1 && end > start){
+      var naive = trimmed.substring(start, end + 1);
+      if(tryParseQuiet(naive)){ return naive; }
+    }
+
+    var depth = 0;
+    var inString = false;
+    var escapeNext = false;
+    for(var i = start; i < trimmed.length; i++){
+      var ch = trimmed[i];
+      if(escapeNext){ escapeNext = false; continue; }
+      if(ch === "\\" && inString){ escapeNext = true; continue; }
+      if(ch === '"'){ inString = !inString; continue; }
+      if(inString) continue;
+      if(ch === "{"){ depth++; }
+      else if(ch === "}"){
+        depth--;
+        if(depth === 0){
+          var candidate = trimmed.substring(start, i + 1);
+          if(tryParseQuiet(candidate)){ return candidate; }
+          break;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  function tryParseQuiet(text){
+    try{ JSON.parse(text); return true; }catch(e){ return false; }
+  }
+
+  // ---------- LIST RENDERING ----------
+  var activeFilterDb = null;
+  var activeFilterSub = null;
+
+  function allDaibunruiNames(){
+    var names = state.daibunrui.map(function(d){ return d.name; }).filter(Boolean);
+    state.articles.forEach(function(a){
+      a.netas.forEach(function(n){
+        if(names.indexOf(n.daibunrui) === -1){ names.push(n.daibunrui); }
+      });
+    });
+    return names;
+  }
+
+  function allSubcategoryNames(filterDb){
+    var names = [];
+    state.articles.forEach(function(a){
+      a.netas.forEach(function(n){
+        if(filterDb && n.daibunrui !== filterDb) return;
+        if(names.indexOf(n.subcategory) === -1){ names.push(n.subcategory); }
+      });
+    });
+    return names;
+  }
+
+  function renderFilterChips(){
+    var dbWrap = document.getElementById("dbFilterChips");
+    dbWrap.innerHTML = "";
+
+    var allChip = document.createElement("div");
+    allChip.className = "chip" + (activeFilterDb === null ? " active" : "");
+    allChip.textContent = "すべて";
+    allChip.addEventListener("click", function(){
+      activeFilterDb = null;
+      activeFilterSub = null;
+      renderList();
+    });
+    dbWrap.appendChild(allChip);
+
+    allDaibunruiNames().forEach(function(name){
+      var chip = document.createElement("div");
+      chip.className = "chip" + (activeFilterDb === name ? " active" : "");
+      chip.textContent = name;
+      chip.addEventListener("click", function(){
+        activeFilterDb = (activeFilterDb === name) ? null : name;
+        activeFilterSub = null;
+        renderList();
+      });
+      dbWrap.appendChild(chip);
+    });
+
+    var subWrap = document.getElementById("subFilterChips");
+    subWrap.innerHTML = "";
+    var subAllChip = document.createElement("div");
+    subAllChip.className = "chip" + (activeFilterSub === null ? " active" : "");
+    subAllChip.textContent = "すべて";
+    subAllChip.addEventListener("click", function(){
+      activeFilterSub = null;
+      renderList();
+    });
+    subWrap.appendChild(subAllChip);
+
+    allSubcategoryNames(activeFilterDb).forEach(function(name){
+      var chip = document.createElement("div");
+      chip.className = "chip" + (activeFilterSub === name ? " active" : "");
+      chip.textContent = name;
+      chip.addEventListener("click", function(){
+        activeFilterSub = (activeFilterSub === name) ? null : name;
+        renderList();
+      });
+      subWrap.appendChild(chip);
+    });
+  }
+
+  function renderList(){
+    renderFilterChips();
+    renderMergeSelects();
+
+    var query = document.getElementById("searchInput").value.trim().toLowerCase();
+    var sortMode = document.getElementById("sortSelect").value;
+
+    var listEl = document.getElementById("netaList");
+    var emptyEl = document.getElementById("emptyState");
+    listEl.innerHTML = "";
+
+    var articles = state.articles.slice();
+
+    if(sortMode === "new"){
+      articles.sort(function(a,b){ return b.createdAt - a.createdAt; });
+    } else if(sortMode === "old"){
+      articles.sort(function(a,b){ return a.createdAt - b.createdAt; });
+    }
+
+    var totalNetaCount = 0;
+    var shownArticleCount = 0;
+
+    articles.forEach(function(art){
+      var filteredNetas = art.netas.filter(function(n){
+        var matchDb = activeFilterDb === null || n.daibunrui === activeFilterDb;
+        var matchSub = activeFilterSub === null || n.subcategory === activeFilterSub;
+        var matchQuery = query === "" ||
+          n.text.toLowerCase().indexOf(query) !== -1 ||
+          art.title.toLowerCase().indexOf(query) !== -1;
+        return matchDb && matchSub && matchQuery;
+      });
+
+      if(sortMode === "cat"){
+        filteredNetas.sort(function(a,b){
+          var c = a.daibunrui.localeCompare(b.daibunrui, "ja");
+          if(c !== 0) return c;
+          return a.subcategory.localeCompare(b.subcategory, "ja");
+        });
+      }
+
+      if(filteredNetas.length === 0) return;
+
+      shownArticleCount++;
+      totalNetaCount += filteredNetas.length;
+
+      var group = document.createElement("div");
+      group.className = "article-group";
+
+      var head = document.createElement("div");
+      head.className = "article-head";
+
+      var meta = document.createElement("div");
+      meta.className = "meta";
+      var titleEl = document.createElement("p");
+      titleEl.className = "article-title";
+      if(art.url){
+        var a = document.createElement("a");
+        a.href = art.url; a.target = "_blank"; a.rel="noopener";
+        a.textContent = art.title;
+        titleEl.appendChild(a);
+      } else {
+        titleEl.textContent = art.title;
+      }
+      meta.appendChild(titleEl);
+      if(art.url){
+        var urlEl = document.createElement("div");
+        urlEl.className = "article-url";
+        urlEl.textContent = art.url;
+        meta.appendChild(urlEl);
+      }
+      head.appendChild(meta);
+
+      var delArticleBtn = document.createElement("button");
+      delArticleBtn.className = "del-article";
+      delArticleBtn.textContent = "この記事を削除";
+      delArticleBtn.addEventListener("click", function(e){
+        e.stopPropagation();
+        if(!confirm("「" + art.title + "」をネタごとすべて削除します。よろしいですか？")){ return; }
+        var realIdx = state.articles.indexOf(art);
+        if(realIdx > -1){ state.articles.splice(realIdx, 1); }
+        saveState();
+        renderList();
+      });
+      head.appendChild(delArticleBtn);
+
+      group.appendChild(head);
+
+      var cardsWrap = document.createElement("div");
+      cardsWrap.className = "neta-cards";
+
+      filteredNetas.forEach(function(n, idx){
+        var card = document.createElement("div");
+        card.className = "neta-card";
+
+        var idxEl = document.createElement("div");
+        idxEl.className = "idx";
+        idxEl.textContent = (idx+1) + ".";
+        card.appendChild(idxEl);
+
+        var body = document.createElement("div");
+        body.className = "body";
+
+        var textEl = document.createElement("p");
+        textEl.className = "neta-text";
+        textEl.textContent = n.text;
+        body.appendChild(textEl);
+
+        var tagsEl = document.createElement("div");
+        tagsEl.className = "neta-tags";
+
+        var dbPill = document.createElement("span");
+        dbPill.className = "cat-pill db";
+        dbPill.textContent = n.daibunrui;
+        tagsEl.appendChild(dbPill);
+
+        var subPill = document.createElement("span");
+        subPill.className = "cat-pill sub";
+        subPill.textContent = n.subcategory;
+        tagsEl.appendChild(subPill);
+
+        body.appendChild(tagsEl);
+        card.appendChild(body);
+
+        var delBtn = document.createElement("button");
+        delBtn.className = "del-neta";
+        delBtn.textContent = "削除";
+        delBtn.addEventListener("click", function(){
+          var realIdx = art.netas.indexOf(n);
+          if(realIdx > -1){ art.netas.splice(realIdx,1); }
+          saveState();
+          renderList();
+        });
+        card.appendChild(delBtn);
+
+        cardsWrap.appendChild(card);
+      });
+
+      group.appendChild(cardsWrap);
+      listEl.appendChild(group);
+    });
+
+    document.getElementById("statsLine").textContent =
+      "記事 " + shownArticleCount + " 件 / ネタ " + totalNetaCount + " 件を表示中（全体: 記事 " +
+      state.articles.length + " 件 / ネタ " + countAllNetas() + " 件）";
+
+    emptyEl.style.display = (state.articles.length === 0) ? "block" : "none";
+  }
+
+  function countAllNetas(){
+    return state.articles.reduce(function(sum,a){ return sum + a.netas.length; }, 0);
+  }
+
+  document.getElementById("searchInput").addEventListener("input", renderList);
+  document.getElementById("sortSelect").addEventListener("change", renderList);
+
+  // ---------- MERGE SUBCATEGORIES ----------
+  function renderMergeSelects(){
+    var fromSel = document.getElementById("mergeFrom");
+    var toSel = document.getElementById("mergeTo");
+    var names = allSubcategoryNames(null);
+
+    var prevFrom = fromSel.value;
+    var prevTo = toSel.value;
+
+    fromSel.innerHTML = "";
+    toSel.innerHTML = "";
+    names.forEach(function(name){
+      var opt1 = document.createElement("option");
+      opt1.value = name; opt1.textContent = name;
+      fromSel.appendChild(opt1);
+      var opt2 = document.createElement("option");
+      opt2.value = name; opt2.textContent = name;
+      toSel.appendChild(opt2);
+    });
+
+    if(names.indexOf(prevFrom) !== -1){ fromSel.value = prevFrom; }
+    if(names.indexOf(prevTo) !== -1){ toSel.value = prevTo; }
+  }
+
+  document.getElementById("mergeBtn").addEventListener("click", function(){
+    var fromName = document.getElementById("mergeFrom").value;
+    var toName = document.getElementById("mergeTo").value;
+
+    if(!fromName || !toName){ return; }
+    if(fromName === toName){
+      alert("同じ小分類名は統合できません。");
+      return;
+    }
+    var count = 0;
+    state.articles.forEach(function(a){
+      a.netas.forEach(function(n){
+        if(n.subcategory === fromName){
+          n.subcategory = toName;
+          count++;
+        }
+      });
+    });
+    saveState();
+    renderList();
+    if(panels.analysis.classList.contains("active")){
+      drillState = { level: "daibunrui" };
+      renderAnalysisView();
+    }
+    alert("「" + fromName + "」を「" + toName + "」に統合しました（" + count + "件のネタを更新）。");
+  });
+
+  document.getElementById("resetAllBtn").addEventListener("click", function(){
+    if(state.articles.length === 0 && state.daibunrui.length <= DEFAULT_DAIBUNRUI.length){
+      alert("すでにデータは空の状態です。");
+      return;
+    }
+    var ok1 = confirm("登録したすべての記事・ネタ・大分類を削除します。この操作は取り消せません。本当に実行しますか？");
+    if(!ok1) return;
+    var ok2 = confirm("最終確認です。「すべて削除」を実行してよろしいですか？");
+    if(!ok2) return;
+
+    state.daibunrui = freshDaibunrui();
+    state.articles = [];
+    saveState();
+
+    renderDaibunruiList();
+    updateUrlCountLabel();
+    updatePromptPreview();
+    renderList();
+    drillState = { level: "daibunrui" };
+    renderAnalysisView();
+
+    alert("すべてのデータを削除しました。最初の状態に戻りました。");
+  });
+
+  // ---------- ANALYSIS DRILL-DOWN ----------
+  var drillState = { level: "daibunrui" };
+  // level: "daibunrui" -> { level, daibunrui }
+  // level: "subcategory" -> { level, daibunrui, subcategory }
+  // level: "article" -> { level, daibunrui, subcategory, articleId }
+
+  function updateAnalysisSummary(){
+    document.getElementById("analysisTotalArticles").textContent = state.articles.length;
+    document.getElementById("analysisTotalNetas").textContent = countAllNetas();
+    var dbSet = {};
+    state.articles.forEach(function(a){
+      a.netas.forEach(function(n){ dbSet[n.daibunrui] = true; });
+    });
+    document.getElementById("analysisTotalDb").textContent = Object.keys(dbSet).length;
+  }
+
+  function netasByDaibunrui(){
+    var map = {};
+    state.articles.forEach(function(a){
+      a.netas.forEach(function(n){
+        if(!map[n.daibunrui]){ map[n.daibunrui] = []; }
+        map[n.daibunrui].push({ neta: n, article: a });
+      });
+    });
+    return map;
+  }
+
+  function renderBreadcrumb(){
+    var wrap = document.getElementById("drillBreadcrumb");
+    wrap.innerHTML = "";
+
+    function addCrumb(label, isCurrent, onClick){
+      var span = document.createElement("span");
+      span.className = "crumb" + (isCurrent ? " current" : "");
+      span.textContent = label;
+      if(!isCurrent){
+        span.addEventListener("click", onClick);
+      }
+      wrap.appendChild(span);
+    }
+    function addSep(){
+      var sep = document.createElement("span");
+      sep.className = "sep";
+      sep.textContent = "›";
+      wrap.appendChild(sep);
+    }
+
+    addCrumb("すべての大分類", drillState.level === "daibunrui", function(){
+      drillState = { level: "daibunrui" };
+      renderAnalysisView();
+    });
+
+    if(drillState.level === "subcategory" || drillState.level === "article" || drillState.level === "detail"){
+      addSep();
+      addCrumb(drillState.daibunrui, drillState.level === "subcategory", function(){
+        drillState = { level: "subcategory", daibunrui: drillState.daibunrui };
+        renderAnalysisView();
+      });
+    }
+    if(drillState.level === "article" || drillState.level === "detail"){
+      addSep();
+      addCrumb(drillState.subcategory, drillState.level === "article", function(){
+        drillState = { level: "article", daibunrui: drillState.daibunrui, subcategory: drillState.subcategory };
+        renderAnalysisView();
+      });
+    }
+    if(drillState.level === "detail"){
+      addSep();
+      var art = state.articles.find(function(a){ return a.id === drillState.articleId; });
+      addCrumb(art ? art.title : "記事", true, function(){});
+    }
+  }
+
+  function renderAnalysisView(){
+    updateAnalysisSummary();
+    renderBreadcrumb();
+
+    var content = document.getElementById("drillContent");
+    content.innerHTML = "";
+
+    if(state.articles.length === 0){
+      var empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.textContent = "まだネタが登録されていません。「①大分類を作る」→「②記事を登録」の順に進めてください。";
+      content.appendChild(empty);
+      return;
+    }
+
+    if(drillState.level === "daibunrui"){
+      renderDaibunruiDrillLevel(content);
+    } else if(drillState.level === "subcategory"){
+      renderSubcategoryDrillLevel(content);
+    } else if(drillState.level === "article"){
+      renderArticleDrillLevel(content);
+    } else if(drillState.level === "detail"){
+      renderDetailDrillLevel(content);
+    }
+  }
+
+  function makeDrillItem(title, subtitle, countLabel, onClick){
+    var item = document.createElement("div");
+    item.className = "drill-item";
+    item.addEventListener("click", onClick);
+
+    var left = document.createElement("div");
+    var titleEl = document.createElement("div");
+    titleEl.className = "drill-item-title";
+    titleEl.textContent = title;
+    left.appendChild(titleEl);
+    if(subtitle){
+      var subEl = document.createElement("div");
+      subEl.className = "drill-item-sub";
+      subEl.textContent = subtitle;
+      left.appendChild(subEl);
+    }
+    item.appendChild(left);
+
+    var right = document.createElement("div");
+    right.style.display = "flex";
+    right.style.alignItems = "center";
+    right.style.gap = "10px";
+    var countEl = document.createElement("span");
+    countEl.className = "drill-item-count";
+    countEl.textContent = countLabel;
+    right.appendChild(countEl);
+    var arrowEl = document.createElement("span");
+    arrowEl.className = "drill-item-arrow";
+    arrowEl.textContent = "›";
+    right.appendChild(arrowEl);
+    item.appendChild(right);
+
+    return item;
+  }
+
+  function renderDaibunruiDrillLevel(content){
+    var map = netasByDaibunrui();
+    var list = document.createElement("div");
+    list.className = "drill-list";
+
+    var dbNamesInOrder = state.daibunrui.map(function(d){ return d.name; });
+    Object.keys(map).forEach(function(name){
+      if(dbNamesInOrder.indexOf(name) === -1){ dbNamesInOrder.push(name); }
+    });
+
+    dbNamesInOrder.forEach(function(dbName){
+      var entries = map[dbName] || [];
+      if(entries.length === 0) return;
+      var articleIds = {};
+      entries.forEach(function(e){ articleIds[e.article.id] = true; });
+      var articleCount = Object.keys(articleIds).length;
+
+      var item = makeDrillItem(
+        dbName,
+        articleCount + "記事中のネタ",
+        entries.length + "ネタ",
+        function(){
+          drillState = { level: "subcategory", daibunrui: dbName };
+          renderAnalysisView();
+        }
+      );
+      list.appendChild(item);
+    });
+
+    if(list.children.length === 0){
+      var empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.textContent = "分類済みのネタがまだありません。";
+      content.appendChild(empty);
+      return;
+    }
+
+    content.appendChild(list);
+  }
+
+  function renderSubcategoryDrillLevel(content){
+    var dbName = drillState.daibunrui;
+    var subMap = {};
+    state.articles.forEach(function(a){
+      a.netas.forEach(function(n){
+        if(n.daibunrui !== dbName) return;
+        if(!subMap[n.subcategory]){ subMap[n.subcategory] = []; }
+        subMap[n.subcategory].push({ neta: n, article: a });
+      });
+    });
+
+    var list = document.createElement("div");
+    list.className = "drill-list";
+
+    Object.keys(subMap).forEach(function(subName){
+      var entries = subMap[subName];
+      var articleIds = {};
+      entries.forEach(function(e){ articleIds[e.article.id] = true; });
+      var articleCount = Object.keys(articleIds).length;
+
+      var item = makeDrillItem(
+        subName,
+        articleCount + "記事",
+        entries.length + "ネタ",
+        function(){
+          drillState = { level: "article", daibunrui: dbName, subcategory: subName };
+          renderAnalysisView();
+        }
+      );
+      list.appendChild(item);
+    });
+
+    content.appendChild(list);
+  }
+
+  function renderArticleDrillLevel(content){
+    var dbName = drillState.daibunrui;
+    var subName = drillState.subcategory;
+
+    var matchedArticles = [];
+    var seen = {};
+    state.articles.forEach(function(a){
+      var matchCount = a.netas.filter(function(n){
+        return n.daibunrui === dbName && n.subcategory === subName;
+      }).length;
+      if(matchCount > 0 && !seen[a.id]){
+        seen[a.id] = true;
+        matchedArticles.push({ article: a, count: matchCount });
+      }
+    });
+
+    var list = document.createElement("div");
+    list.className = "drill-list";
+
+    matchedArticles.forEach(function(entry){
+      var item = makeDrillItem(
+        entry.article.title,
+        entry.article.url || "（URLなし）",
+        entry.count + "ネタ",
+        function(){
+          drillState = { level: "detail", daibunrui: dbName, subcategory: subName, articleId: entry.article.id };
+          renderAnalysisView();
+        }
+      );
+      list.appendChild(item);
+    });
+
+    content.appendChild(list);
+  }
+
+  function renderDetailDrillLevel(content){
+    var art = state.articles.find(function(a){ return a.id === drillState.articleId; });
+    if(!art){
+      drillState = { level: "daibunrui" };
+      renderAnalysisView();
+      return;
+    }
+
+    var card = document.createElement("div");
+    card.className = "detail-card";
+
+    var h3 = document.createElement("h3");
+    h3.textContent = art.title;
+    card.appendChild(h3);
+
+    var meta = document.createElement("div");
+    meta.className = "detail-meta";
+    meta.textContent = "全" + art.netas.length + "ネタ中、この記事に含まれる小ネタ一覧";
+    card.appendChild(meta);
+
+    art.netas.forEach(function(n){
+      var item = document.createElement("div");
+      item.className = "detail-neta-item";
+
+      var textEl = document.createElement("p");
+      textEl.className = "neta-text";
+      textEl.textContent = n.text;
+      item.appendChild(textEl);
+
+      var tagsEl = document.createElement("div");
+      tagsEl.className = "neta-tags";
+      var dbPill = document.createElement("span");
+      dbPill.className = "cat-pill db";
+      dbPill.textContent = n.daibunrui;
+      tagsEl.appendChild(dbPill);
+      var subPill = document.createElement("span");
+      subPill.className = "cat-pill sub";
+      subPill.textContent = n.subcategory;
+      tagsEl.appendChild(subPill);
+      item.appendChild(tagsEl);
+
+      card.appendChild(item);
+    });
+
+    if(art.url){
+      var link = document.createElement("a");
+      link.className = "note-link-btn";
+      link.href = art.url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = "noteの記事を開く →";
+      card.appendChild(link);
+    }
+
+    content.appendChild(card);
+  }
+
+  // ---------- INIT ----------
+  renderDaibunruiList();
+  updateUrlCountLabel();
+  updatePromptPreview();
+  renderList();
+  renderAnalysisView();
+
+})();
+</script>
+
+
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=>r.unregister());
+  }).then(()=>{
+    navigator.serviceWorker.register('./sw.js');
+  });
+}
+</script>
+</body>
+</html>
